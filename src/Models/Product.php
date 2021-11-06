@@ -16,18 +16,33 @@ class Product extends \EDD_SL_Download
 
     use Serializable;
 
-    protected bool $returnBetaVersions = false;
+    protected bool $allowBetaVersions = false;
 
-    public function withBeta(bool $returnBetaVersions): self
+    /**
+     * Whether to accept a beta version.
+     *
+     * @param  bool  $allowBetaVersions
+     *
+     * @return $this
+     */
+    public function withBeta(bool $allowBetaVersions): self
     {
-        $this->returnBetaVersions = $returnBetaVersions;
+        $this->allowBetaVersions = $allowBetaVersions;
 
         return $this;
     }
 
-    public function toArray(): array
+    /**
+     * Minimal array used in `LatestRelease` API requests.
+     *
+     * @return array
+     */
+    public function toVersionCheckArray(): array
     {
         $newVersion = $stableVersion = $this->get_version();
+        if ($this->allowBetaVersions && $this->has_beta()) {
+            $newVersion = $this->get_beta_version();
+        }
 
         return [
             'id'             => $this->ID,
@@ -36,6 +51,17 @@ class Product extends \EDD_SL_Download
             'name'           => $this->post_title,
             'last_updated'   => $this->post_modified_gmt,
         ];
+    }
+
+    /**
+     * Full array of the product. Used when retrieving full information, including
+     * changelog and description. ("View More Details" link in WordPress.)
+     *
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return wp_parse_args([], $this->toVersionCheckArray());
     }
 
 }

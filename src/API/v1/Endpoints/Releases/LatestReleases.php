@@ -2,13 +2,16 @@
 /**
  * LatestReleases.php
  *
+ * Returns a list of all products, along with the version number of the latest release.
+ *
  * @package   edd-sl-api
  * @copyright Copyright (c) 2021, Ashley Gibson
  * @license   GPL2+
  */
 
-namespace AshleyFae\EDD\SoftwareLicensingAPI\API\v1\Endpoints;
+namespace AshleyFae\EDD\SoftwareLicensingAPI\API\v1\Endpoints\Releases;
 
+use AshleyFae\EDD\SoftwareLicensingAPI\API\v1\Endpoints\ApiEndpoint;
 use AshleyFae\EDD\SoftwareLicensingAPI\API\v1\RouteRegistration;
 use AshleyFae\EDD\SoftwareLicensingAPI\Helpers\ProductQuery;
 use AshleyFae\EDD\SoftwareLicensingAPI\Models\Product;
@@ -53,7 +56,7 @@ class LatestReleases implements ApiEndpoint
         $query = new ProductQuery();
 
         return array_map(function (Product $product) use ($returnBetaVersions) {
-            return $product->withBeta($returnBetaVersions)->toArray();
+            return $product->withBeta($returnBetaVersions)->toVersionCheckArray();
         }, $query->getProducts());
     }
 }
